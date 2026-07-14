@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
+<title>小27·八字命理</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/iztro@2.5.8/dist/iztro.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f2ece2;--card:#fffbf8;--text:#2c2418;--dim:#9a8a78;--border:#e4d9c8;--accent:#b22222;--accent2:#7a3b1e;--radius:14px;--wood:#388e3c;--fire:#c62828;--earth:#b8860b;--metal:#b8942e;--water:#1976d2}
+body{font-family:'Noto Serif SC','Songti SC',Georgia,serif;background:var(--bg);color:var(--text);padding:0 0 40px;-webkit-font-smoothing:antialiased}
+.hidden{display:none!important}
+
+/* Header */
+.header{background:linear-gradient(135deg,#2c2418,#4a3728);color:#f5ede4;padding:28px 20px 24px;text-align:center}
+.header h1{font-size:24px;font-weight:700;letter-spacing:4px}
+.header p{font-size:13px;color:rgba(245,237,228,.6);margin-top:6px;letter-spacing:2px}
+
+/* Container */
+.container{max-width:600px;margin:0 auto;padding:16px}
+
+/* Form */
+.form-card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:16px}
+.form-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.form-row>*{flex:1;min-width:120px}
+label{display:block;font-size:13px;color:var(--dim);margin-bottom:4px;font-weight:600}
+select,input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:15px;color:var(--text);font-family:inherit;outline:none;transition:border-color .2s}
+select:focus,input:focus{border-color:var(--accent2)}
+.btn-submit{width:100%;padding:14px;border:none;border-radius:10px;background:linear-gradient(135deg,#b22222,#7a3b1e);color:#fff;font-size:17px;font-weight:700;letter-spacing:4px;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.btn-submit:active{opacity:.85}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--card);border-radius:var(--radius);padding:4px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.tab{flex:1;text-align:center;padding:12px 6px;border-radius:10px;font-size:14px;font-weight:600;color:var(--dim);cursor:pointer;transition:all .2s;border:none;background:transparent;font-family:inherit}
+.tab.active{background:linear-gradient(135deg,#2c2418,#4a3728);color:#f5ede4;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+
+/* Results */
+.result-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:14px}
+.result-title{font-size:16px;font-weight:700;color:var(--accent2);border-left:3px solid var(--accent);padding-left:10px;margin-bottom:14px}
+.bazi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.pillar{background:var(--bg);border-radius:8px;padding:12px 8px;text-align:center}
+.pillar .gan{font-size:20px;font-weight:700}
+.pillar .zhi{font-size:20px;font-weight:700;margin-top:2px}
+.pillar .label{font-size:11px;color:var(--dim);margin-top:6px}
+.pillar .shi-shen{font-size:12px;color:var(--accent2);font-weight:600;margin-top:4px}
+.pillar .na-yin{font-size:11px;color:var(--dim);margin-top:2px}
+.pillar .hide-gan{font-size:11px;color:#888;margin-top:2px}
+.wuxing-wood{color:var(--wood)}.wuxing-fire{color:var(--fire)}.wuxing-earth{color:var(--earth)}.wuxing-metal{color:var(--metal)}.wuxing-water{color:var(--water)}
+
+/* Info chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:12px;padding:4px 12px;border-radius:20px;background:var(--bg);color:var(--text)}
+.chip.accent{background:var(--accent);color:#fff}
+.chip.wood{background:#e8f5e9;color:var(--wood)}
+.chip.fire{background:#ffebee;color:var(--fire)}
+.chip.earth{background:#fff8e1;color:var(--earth)}
+.chip.metal{background:#fff8e1;color:var(--metal)}
+.chip.water{background:#e3f2fd;color:var(--water)}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+th,td{padding:8px 6px;border:1px solid var(--border);text-align:center}
+th{background:var(--bg);font-weight:700;color:var(--accent2);font-size:12px}
+td.good{color:var(--wood);font-weight:600}
+td.bad{color:var(--fire);font-weight:600}
+td.neutral{color:var(--earth);font-weight:600}
+td.none{color:#ccc}
+
+/* DaYun */
+.dayun-row{display:flex;align-items:center;gap:4px;margin-bottom:4px;padding:8px;border-radius:6px;background:var(--bg);font-size:13px}
+.dayun-row .age{min-width:50px;font-weight:700;color:var(--accent2)}
+.dayun-row .ganzhi{min-width:60px;font-weight:600}
+.dayun-row .liunian{display:flex;flex-wrap:wrap;gap:2px}
+.dayun-row .liunian span{padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.6);font-size:11px}
+
+/* ZiWei */
+.ziwei-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.zw-palace{background:var(--bg);border-radius:8px;padding:10px;min-height:100px;font-size:12px}
+.zw-palace .pname{font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:4px;border-bottom:1px solid var(--border);padding-bottom:3px}
+.zw-palace .star{font-size:11px;line-height:1.6}
+.zw-star-m{font-weight:700;color:var(--text)}
+.zw-star-s{color:var(--dim)}
+
+/* Misc */
+.text-center{text-align:center}
+.text-dim{color:var(--dim);font-size:13px}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+.mb-8{margin-bottom:8px}
+.gap-8{gap:8px}
+.flex{display:flex;flex-wrap:wrap}
+
+.loading{text-align:center;padding:40px;color:var(--dim);font-size:15px}
+.error{color:var(--fire);padding:20px;text-align:center}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🐾 小27·命理排盘</h1>
+  <p>八字 + 紫微斗数 · 双引擎</p>
+</div>
+
+<div class="container">
+  <!-- 输入表单 -->
+  <div class="form-card" id="formCard">
+    <div class="form-row">
+      <div>
+        <label>出生年</label>
+        <select id="birthYear"></select>
+      </div>
+      <div>
+        <label>出生月</label>
+        <select id="birthMonth"></select>
+      </div>
+      <div>
+        <label>出生日</label>
+        <select id="birthDay"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>出生时辰</label>
+        <select id="birthHour">
+          <option value="0">子时 (23:00-00:59)</option>
+          <option value="1">丑时 (01:00-02:59)</option>
+          <option value="2">寅时 (03:00-04:59)</option>
+          <option value="3">卯时 (05:00-06:59)</option>
+          <option value="4" selected>辰时 (07:00-08:59)</option>
+          <option value="5">巳时 (09:00-10:59)</option>
+          <option value="6">午时 (11:00-12:59)</option>
+          <option value="7">未时 (13:00-14:59)</option>
+          <option value="8">申时 (15:00-16:59)</option>
+          <option value="9">酉时 (17:00-18:59)</option>
+          <option value="10">戌时 (19:00-20:59)</option>
+          <option value="11">亥时 (21:00-22:59)</option>
+        </select>
+      </div>
+      <div>
+        <label>性别</label>
+        <select id="birthGender">
+          <option value="1">男</option>
+          <option value="0">女</option>
+        </select>
+      </div>
+      <div>
+        <label>出生地区</label>
+        <select id="birthRegion">
+          <option value="0">东部（北京/上海等）</option>
+          <option value="1">东北</option>
+          <option value="2">中部偏西</option>
+          <option value="3">西南/四川</option>
+          <option value="4">西北</option>
+          <option value="5">新疆/西藏</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-submit" onclick="calc()">开 始 排 盘</button>
+  </div>
+
+  <!-- 结果区 -->
+  <div id="results" class="hidden">
+    <div class="tabs" id="tabBar">
+      <button class="tab active" onclick="switchTab('bazi')">八字命盘</button>
+      <button class="tab" onclick="switchTab('ziwei')">紫微斗数</button>
+      <button class="tab" onclick="switchTab('detail')">全表分析</button>
+    </div>
+    <div id="tabBazi"></div>
+    <div id="tabZiwei" class="hidden"></div>
+    <div id="tabDetail" class="hidden"></div>
+  </div>
+</div>
+
+<script>
+// ===== 初始化 =====
+(function(){
+  const y = document.getElementById('birthYear'), m = document.getElementById('birthMonth'), d = document.getElementById('birthDay');
+  for(let i=1940;i<=2030;i++){const o=document.createElement('option');o.value=i;o.text=i+'年';if(i===2004)o.selected=true;y.appendChild(o)}
+  for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.text=i+'月';if(i===6)o.selected=true;m.appendChild(o)}
+  for(let i=1;i<=31;i++){const o=document.createElement('option');o.value=i;o.text=i+'日';if(i===23)o.selected=true;d.appendChild(o)}
+})();
+
+function getSolarTime(y,m,d,h,region){
+  const offsets=[0,15,-15,-45,-60,-120];
+  return {y,m,d,h:h+0,offset:offsets[region]||0};
+}
+
+// ===== 主函数 =====
+function calc(){
+  const y=+document.getElementById('birthYear').value;
+  const m=+document.getElementById('birthMonth').value;
+  const d=+document.getElementById('birthDay').value;
+  const h=+document.getElementById('birthHour').value;
+  const gender=+document.getElementById('birthGender').value;
+  const region=+document.getElementById('birthRegion').value;
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('tabBazi').innerHTML='<div class="loading">🔮 推算中...</div>';
+  document.getElementById('tabZiwei').innerHTML='';
+  document.getElementById('tabDetail').innerHTML='';
+
+  try {
+    const solar = Lunar.Solar.fromYmd(y,m,d);
+    const lunar = solar.getLunar();
+    const eightChar = lunar.getEightChar();
+    const yun = eightChar.getYun(gender);
+
+    loadBazi(solar,lunar,eightChar,yun,gender,h,region);
+    loadZiwei(y,m,d,h,gender);
+    loadDetail(eightChar,yun,gender);
+    switchTab('bazi');
+  } catch(e){
+    document.getElementById('tabBazi').innerHTML='<div class="error">❌ 排盘出错：'+e.message+'</div>';
+  }
+}
+
+// ===== Tab切换 =====
+let currentTab='bazi';
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('#tabBar .tab').forEach(el=>{if(el.textContent.includes(tab==='bazi'?'八字':tab==='ziwei'?'紫微':'全表'))el.classList.add('active')});
+  ['tabBazi','tabZiwei','tabDetail'].forEach(id=>document.getElementById(id).classList.toggle('hidden',id!=='tab'+tab.charAt(0).toUpperCase()+tab.slice(1)));
+}
+
+// ===== 八字命盘 =====
+function loadBazi(solar,lunar,ec,yun,gender,hour,region){
+  const stems=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const branches=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const wxMap={'木':{class:'wood',emoji:'🌳'},'火':{class:'fire',emoji:'🔥'},'土':{class:'earth',emoji:'⛰️'},'金':{class:'metal',emoji:'⚔️'},'水':{class:'water',emoji:'💧'}};
+  const shiShenMap={'ss.biJian':'比肩','ss.jieCai':'劫财','ss.shiShen':'食神','ss.shangGuan':'伤官','ss.pianCai':'偏财','ss.zhengCai':'正财','ss.qiSha':'七杀','ss.zhengGuan':'正官','ss.pianYin':'偏印','ss.zhengYin':'正印'};
+
+  const pillars=[
+    {label:'年柱',gan:ec.getYearGan(),zhi:ec.getYearZhi(),ssG:ec.getYearShiShenGan(),ssZ:ec.getYearShiShenZhi(),ny:ec.getYearNaYin(),hide:ec.getYearHideGan(),wx:ec.getYearWuXing()},
+    {label:'月柱',gan:ec.getMonthGan(),zhi:ec.getMonthZhi(),ssG:ec.getMonthShiShenGan(),ssZ:ec.getMonthShiShenZhi(),ny:ec.getMonthNaYin(),hide:ec.getMonthHideGan(),wx:ec.getMonthWuXing()},
+    {label:'日柱',gan:ec.getDayGan(),zhi:ec.getDayZhi(),ssG:'日主',ssZ:ec.getDayShiShenZhi(),ny:ec.getDayNaYin(),hide:ec.getDayHideGan(),wx:ec.getDayWuXing()},
+    {label:'时柱',gan:ec.getTimeGan(),zhi:ec.getTimeZhi(),ssG:ec.getTimeShiShenGan(),ssZ:ec.getTimeShiShenZhi(),ny:ec.getTimeNaYin(),hide:ec.getTimeHideGan(),wx:ec.getTimeWuXing()}
+  ];
+
+  const dayGan=ec.getDayGan();
+  const dayWx=wxMap[getWxFromGan(dayGan)];
+  const birthInfo=`${y}年${m}月${d}日 ${['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'][hour]}时 · ${gender?'男':'女'}命`;
+
+  let html=`
+    <div class="result-card">
+      <div class="result-title">📋 命主信息</div>
+      <div style="font-size:14px;line-height:1.8">${birthInfo}</div>
+      <div style="font-size:13px;color:var(--dim)">农历：${lunar.toString()}</div>
+    </div>
+    <div class="result-card">
+      <div class="result-title">🌐 四柱八字</div>
+      <div class="bazi-grid">`;
+
+  pillars.forEach(p=>{
+    const gWx=getWxFromGan(p.gan);
+    const zWx=getWxFromZhi(p.zhi);
+    html+=`
+      <div class="pillar">
+        <div class="label">${p.label}</div>
+        <div class="gan wuxing-${wxMap[gWx]?.class||''}">${p.gan}</div>
+        <div class="zhi wuxing-${wxMap[zWx]?.class||''}">${p.zhi}</div>
+        <div class="shi-shen">${resolveSS(p.ssG)}</div>
+        <div class="na-yin">${resolveNaYin(p.ny)}</div>
+        <div class="hide-gan">${p.hide.join(' ')}</div>
+      </div>`;
+  });
+
+  html+=`</div></div>`;
+
+  // 五行统计
+  const wxStats={木:0,火:0,土:0,金:0,水:0};
+  pillars.forEach(p=>{
+    const g=getWxFromGan(p.gan);if(g)wxStats[g]++;
+    const z=getWxFromZhi(p.zhi);if(z)wxStats[z]++;
+  });
+
+  html+=`
+    <div class="result-card">
+      <div class="result-title">🔮 五行分布</div>
+      <div class="flex gap-8">
+        ${Object.entries(wxStats).map(([k,v])=>`<span class="chip ${wxMap[k].class}">${wxMap[k].emoji} ${k} ${v}个</span>`).join('')}
+      </div>
+      <div class="chips mt-8">
+        <span class="chip"><b>日主：</b>${dayGan}（${getWxFromGan(dayGan)}${wxMap[getWxFromGan(dayGan)]?.emoji||''}）</span>
+        <span class="chip"><b>纳音：</b>${resolveNaYin(ec.getDayNaYin())}</span>
+      </div>
+    </div>`;
+
+  // 大运
+  html+=`<div class="result-card"><div class="result-title">📈 大运走势</div>`;
+  const daYunArr=yun.getDaYun();
+  html+=`<div style="font-size:13px;color:var(--dim);margin-bottom:8px">起运：${yun.getStartYear()}岁（${yun.getStartSolar().toYmd()}）</div>`;
+  daYunArr.forEach((dy,i)=>{
+    const liuNian=dy.getLiuNian().slice(0,5);
+    html+=`
+      <div class="dayun-row">
+        <span class="age">${dy.getStartAge()}→${dy.getEndAge()}岁</span>
+        <span class="ganzhi">${dy.getGanZhi()}</span>
+        <span style="font-size:11px;color:var(--dim)">${i+1}运</span>
+      </div>`;
+  });
+  html+=`</div>`;
+
+  document.getElementById('tabBazi').innerHTML=html;
+}
+
+// ===== 紫微斗数 =====
+function loadZiwei(y,m,d,h,gender){
+  try{
+    const gName=gender?'男':'女';
+    const astrolabe=iztro.astro.astrolabeBySolarDate(`${y}-${m}-${d}`,h,gName);
+    const palaces=astrolabe.getPalaces();
+
+    let html='<div class="result-card"><div class="result-title">🌟 紫微斗数命盘</div>';
+    html+=`<div style="font-size:13px;color:var(--dim);margin-bottom:10px">${y}年${m}月${d}日 · ${gName}命 · ${astrolabe.getSoulAndBody().soul}宫立命</div>`;
+
+    html+='<div class="ziwei-grid">';
+    palaces.forEach(p=>{
+      const name=p.getName();
+      const stars=p.getStars();
+      const adj=p.getAdjectiveStars();
+
+      html+=`<div class="zw-palace">
+        <div class="pname">${name}</div>`;
+      stars.forEach(s=>{
+        const sn=s.getName();
+        const bright=s.getBrightness();
+        const cls=s.getType()==='major'?'zw-star-m':'zw-star-s';
+        html+=`<div class="star ${cls}">${sn}${bright?`(${bright})`:''}</div>`;
+      });
+      adj.forEach(a=>{
+        html+=`<div class="star zw-star-s">${a.getName()}</div>`;
+      });
+      html+=`</div>`;
+    });
+    html+='</div></div>';
+
+    document.getElementById('tabZiwei').innerHTML=html;
+  }catch(e){
+    document.getElementById('tabZiwei').innerHTML='<div class="error">❌ 紫微斗数排盘出错：'+e.message+'</div>';
+  }
+}
+
+// ===== 全表分析 =====
+function loadDetail(ec,yun,gender){
+  let html='<div class="result-card"><div class="result-title">📊 神煞全表</div>';
+  html+=`<div style="font-size:13px;color:var(--dim);margin-bottom:10px">四柱神煞对照表（✓=出现）</div>
+  <table><tr><th>神煞</th><th>年</th><th>月</th><th>日</th><th>时</th></tr>`;
+
+  const allShenSha=[
+    ['天乙贵人','good'],['文昌贵人','good'],['天德贵人','good'],['月德贵人','good'],
+    ['福星贵人','good'],['太极贵人','good'],['国印贵人','good'],['学堂','good'],
+    ['禄神','good'],['金舆','good'],['红鸾','good'],['天喜','good'],
+    ['天医','good'],['天赦','good'],['日德','good'],['德秀','good'],['将星','good'],
+    ['桃花','neutral'],['驿马','neutral'],['华盖','neutral'],['魁罡','neutral'],['金神','neutral'],
+    ['劫煞','bad'],['亡神','bad'],['灾煞','bad'],['羊刃','bad'],['四废','bad'],
+    ['勾神','bad'],['流霞','bad'],['大耗','bad'],['丧门','bad'],['吊客','bad'],
+    ['阴差阳错','bad'],['天罗','bad'],['地网','bad'],['孤辰','bad'],['寡宿','bad'],
+    ['孤鸾煞','bad'],['十恶大败','bad']
+  ];
+
+  // 简易神煞判定（简化版，用天干地支关系判定）
+  const gan=ec.getDayGan();
+  const zhi=ec.getDayZhi();
+  const yG=ec.getYearGan(),yZ=ec.getYearZhi();
+  const mG=ec.getMonthGan(),mZ=ec.getMonthZhi();
+  const tG=ec.getTimeGan(),tZ=ec.getTimeZhi();
+
+  const hasShenSha=(name,pillar)=>{
+    const g=pillar==='year'?yG:pillar==='month'?mG:pillar==='hour'?tG:gan;
+    const z=pillar==='year'?yZ:pillar==='month'?mZ:pillar==='hour'?tZ:zhi;
+    const s=g+z;
+    const checks={
+      '天乙贵人':['甲戊庚牛羊','乙己鼠猴乡','丙丁猪鸡位','壬癸兔蛇藏','辛逢马虎'],
+      '文昌贵人':['甲巳','乙午','丙申','丁酉','戊申','己酉','庚亥','辛子','壬寅','癸卯'],
+      '桃花':['寅午戌兔','巳酉丑马','申子辰鸡','亥卯未鼠'],
+      '驿马':['寅午戌申','巳酉丑亥','申子辰寅','亥卯未巳'],
+      '华盖':['寅午戌戌','巳酉丑丑','申子辰辰','亥卯未未'],
+      '劫煞':['寅午戌亥','巳酉丑寅','申子辰巳','亥卯未申'],
+      '亡神':['寅午戌巳','巳酉丑申','申子辰亥','亥卯未寅'],
+      '羊刃':['甲卯','乙寅','丙午','丁巳','戊午','己巳','庚酉','辛申','壬子','癸亥'],
+      '禄神':['甲寅','乙卯','丙巳','丁午','戊巳','己午','庚申','辛酉','壬亥','癸子'],
+      '天德贵人':['寅丁','申癸','巳丙','亥乙','辰癸','戌甲','丑辛','未庚'],
+      '月德贵人':['寅丙','申壬','巳甲','亥庚','辰壬','戌丙','丑庚','未甲'],
+    };
+    if(checks[name])return checks[name].some(c=>c.includes(s)||c.includes(z));
+    if(name==='金舆')return['甲辰','乙巳','丙未','丁申','戊未','己申','庚戌','辛亥','壬丑','癸寅'].includes(s);
+    if(name==='红鸾')return['甲卯','乙寅','丙丑','丁子','戊亥','己戌','庚酉','辛申','丁未','癸午'].includes(s,g);
+    return false;
+  };
+
+  allShenSha.forEach(([name,type])=>{
+    const y=hasShenSha(name,'year');const m=hasShenSha(name,'month');
+    const d=hasShenSha(name,'day');const t=hasShenSha(name,'hour');
+    html+=`<tr><td style="text-align:left;padding-left:8px">${name}</td>
+      <td class="${y?type:'none'}">${y?'✓':'—'}</td>
+      <td class="${m?type:'none'}">${m?'✓':'—'}</td>
+      <td class="${d?type:'none'}">${d?'✓':'—'}</td>
+      <td class="${t?type:'none'}">${t?'✓':'—'}</td></tr>`;
+  });
+
+  html+=`</table></div>`;
+
+  // 格局分析
+  html+=`<div class="result-card"><div class="result-title">🏆 格局分析</div>`;
+  const gejuList=detectGeju(ec);
+  if(gejuList.length){
+    gejuList.forEach(g=>{
+      html+=`<div style="padding:8px 10px;margin-bottom:6px;border-radius:6px;background:var(--bg);font-size:13px">
+        <b style="color:var(--accent2)">${g.name}</b>
+        <span style="color:${g.formed? 'var(--wood)':'var(--fire)'}">${g.formed?' ✅ 成格':' ❌ 未成格'}</span>
+        <div style="color:var(--dim);font-size:12px;margin-top:2px">${g.reason||''}</div>
+      </div>`;
+    });
+  }else{
+    html+=`<div style="font-size:13px;color:var(--dim)">无显著特殊格局，中和之命。</div>`;
+  }
+  html+=`</div>`;
+
+  // 幸运信息
+  const dayGan=ec.getDayGan();
+  const dayWx=getWxFromGan(dayGan);
+  const luckyMap={木:{num:'3、8',color:'绿、青',type:'有主见、有上进心、正直阳光'},
+                  火:{num:'2、7',color:'红、橙、紫',type:'热情开朗、大方主动、能带动气氛'},
+                  土:{num:'5、10',color:'黄、棕、米',type:'稳重靠谱、踏实有责任心'},
+                  金:{num:'4、9',color:'白、金、银',type:'果断干练、有气场有能力'},
+                  水:{num:'1、6',color:'黑、蓝、灰',type:'聪明灵活、有智慧懂变通'}};
+  const l=luckyMap[dayWx]||{num:'—',color:'—',type:'—'};
+
+  html+=`<div class="result-card">
+    <div class="result-title">🍀 幸运信息</div>
+    <div class="flex gap-8">
+      <span class="chip"><b>幸运数字：</b>${l.num}</span>
+      <span class="chip"><b>幸运颜色：</b>${l.color}</span>
+    </div>
+    <div style="font-size:13px;margin-top:10px"><b>容易被吸引：</b>${l.type}</div>
+  </div>`;
+
+  document.getElementById('tabDetail').innerHTML=html;
+}
+
+// ===== 辅助函数 =====
+function getWxFromGan(g){return {甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水'}[g]||''}
+function getWxFromZhi(z){return {寅:'木',卯:'木',巳:'火',午:'火',辰:'土',戌:'土',丑:'土',未:'土',申:'金',酉:'金',亥:'水',子:'水'}[z]||''}
+function resolveSS(key){
+  const map={'ss.biJian':'比肩','ss.jieCai':'劫财','ss.shiShen':'食神','ss.shangGuan':'伤官',
+             'ss.pianCai':'偏财','ss.zhengCai':'正财','ss.qiSha':'七杀','ss.zhengGuan':'正官',
+             'ss.pianYin':'偏印','ss.zhengYin':'正印'};
+  return map[key]||key||'';
+}
+function resolveNaYin(key){
+  if(!key||key==='')return '';
+  const names={haiZhong:'海中',daLi:'大犁',luZhong:'炉中',daYi:'大驿',tu:'土',jin:'金',mu:'木',shui:'水',huo:'火'};
+  const cleaned=key.replace(/\{[^}]+\}/g,'').replace(/[{}]/g,'');
+  return cleaned||key;
+}
+
+// ===== 格局检测 =====
+function detectGeju(ec){
+  const result=[];
+  const dayGan=ec.getDayGan();
+  const dayZhi=ec.getDayZhi();
+  const yG=ec.getYearGan(),yZ=ec.getYearZhi();
+  const mG=ec.getMonthGan(),mZ=ec.getMonthZhi();
+  const tG=ec.getTimeGan(),tZ=ec.getTimeZhi();
+
+  // 简化的格局检测
+  const stems=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const sIndex=stems.indexOf(dayGan);
+  const wx=['木','木','火','火','土','土','金','金','水','水'][sIndex]||'';
+
+  result.push({name:`${dayGan}日·${wx}命`,formed:true,reason:`日主${dayGan}，五行属${wx}`});
+
+  // 杀印相生：七杀+印透干
+  const hasQiSha=[yG,mG,tG].some(g=>['丙','丁','戊','己'][['庚','辛','壬','癸','甲','乙','丙','丁','戊','己'].indexOf(dayGan)]===g);
+  const hasYin=[yG,mG,tG].some(g=>['庚','辛','壬','癸'][['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'].indexOf(dayGan)]===g);
+  if(hasQiSha&&hasYin)result.push({name:'杀印相生格',formed:true,reason:'七杀与印星同透天干，杀印相生，贵格。'});
+  else if(hasQiSha)result.push({name:'杀印相生格',formed:false,reason:'七杀透干但印星不透，杀无制。'});
+
+  // 伤官配印
+  const hasSG=['丙','丁','戊','己'][['庚','辛','壬','癸','甲','乙','丙','丁','戊','己'].indexOf(dayGan)];
+  if(hasSG&&hasYin)result.push({name:'伤官配印格',formed:true,reason:'伤官与印星同透，以印制伤，文贵之格。'});
+
+  // 正官格 - 月支本气为官
+  const zhiIndex=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].indexOf(dayZhi);
+  const zhiWx=['水','土','木','木','土','火','火','土','金','金','土','水'][zhiIndex];
+  if(zhiWx==='火'&&['庚','辛'].includes(dayGan))result.push({name:'正官格',formed:false,reason:'月令官星，但官星不透。'});
+
+  return result;
+}
+</script>
+</body>
+</html>
