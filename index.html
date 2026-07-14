@@ -248,23 +248,33 @@ function renderBazi(y,m,d,h,gender,s,L,ec,yun){
 function renderZiwei(y,m,d,h,gender){
   const gName=gender==='m'?'男':'女';
   const astrolabe=iztro.astro.astrolabeBySolarDate(`${y}-${m}-${d}`,h,gName,true,'zh-CN');
-  const palaces=astrolabe.getPalaces();
-  const sb=astrolabe.getSoulAndBody();
+  const palaces=astrolabe.palaces||astrolabe.getPalaces?.()||[];
+  const sb=astrolabe.getSoulAndBody?.()||astrolabe.soulAndBody||{soul:'',body:''};
 
   let html=`
 <div class="card">
   <div class="card-title">🌟 紫微斗数命盘</div>
-  <div class="card-desc">紫微斗数以命宫为核心，结合十二宫星曜分布，分析性格、财运、事业、感情等人生各方面。</div>
-  <div style="font-size:13px;color:var(--dim);margin-bottom:10px;text-align:center">${y}年${m}月${d}日 · ${gName}命 · ${sb.soul}宫安命 · ${sb.body}宫安身</div>
+  <div class="card-desc">紫微斗数以命宫为核心，十二宫星曜分布反映性格、财运、事业、感情等人生各方面。</div>
+  <div style="font-size:13px;color:var(--dim);margin-bottom:10px;text-align:center">${y}年${m}月${d}日 · ${gName}命 · ${sb.soul||'?'}宫安命 · ${sb.body||'?'}宫安身</div>
   <div class="zw">`;
 
   palaces.forEach(p=>{
-    html+=`<div class="zw-c"><div class="zw-t">${p.getName()}</div>`;
-    p.getStars().forEach(s=>{
-      const cls=s.getType()==='major'?'zw-m':'';
-      html+=`<div class="zw-s ${cls}">${s.getName()}${s.getBrightness()?' ('+s.getBrightness()+')':''}</div>`;
+    const pName=p.name||(typeof p.getName==='function'?p.getName():'?');
+    const stars=Array.isArray(p.stars)?p.stars:(typeof p.getStars==='function'?p.getStars():[]);
+    const adj=Array.isArray(p.adjectiveStars)?p.adjectiveStars:(typeof p.getAdjectiveStars==='function'?p.getAdjectiveStars():[]);
+
+    html+=`<div class="zw-c"><div class="zw-t">${pName}</div>`;
+    stars.forEach(s=>{
+      const sName=s.name||(typeof s.getName==='function'?s.getName():'');
+      const sType=s.type||(typeof s.getType==='function'?s.getType():'');
+      const bright=s.brightness||(typeof s.getBrightness==='function'?s.getBrightness():'');
+      const cls=sType==='major'?'zw-m':'';
+      html+=`<div class="zw-s ${cls}">${sName}${bright?' ('+bright+')':''}</div>`;
     });
-    p.getAdjectiveStars().forEach(a=>{html+=`<div class="zw-a">${a.getName()}</div>`});
+    adj.forEach(a=>{
+      const aName=a.name||(typeof a.getName==='function'?a.getName():'');
+      html+=`<div class="zw-a">${aName}</div>`;
+    });
     html+=`</div>`;
   });
   html+=`</div></div>`;
